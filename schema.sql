@@ -61,3 +61,12 @@ CREATE TABLE payments (
     method    TEXT NOT NULL CHECK (method IN ('card','upi','netbanking','cod')),
     paid_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE INDEX idx_addresses_user_id         ON addresses(user_id);
+CREATE INDEX idx_orders_user_id            ON orders(user_id);
+CREATE INDEX idx_orders_address_id         ON orders(address_id);
+CREATE INDEX idx_orders_status             ON orders(status);
+CREATE INDEX idx_orders_created_at         ON orders(created_at);
+CREATE INDEX idx_order_items_product_id    ON order_items(product_id);
+CREATE INDEX idx_status_history_order_time ON order_status_history(order_id, changed_at);
+CREATE INDEX idx_payments_order_id         ON payments(order_id);
