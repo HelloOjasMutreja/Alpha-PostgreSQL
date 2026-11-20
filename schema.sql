@@ -28,3 +28,28 @@ CREATE TABLE orders (
                 CHECK (status IN ('pending','paid','packed','shipped','delivered','cancelled')),
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE TABLE order_items (
+    id          INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    order_id    INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    product_id  INT NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+    quantity    INT NOT NULL CHECK (quantity > 0),
+    unit_price  NUMERIC(10,2) NOT NULL CHECK (unit_price >= 0),
+    UNIQUE (order_id, product_id)
+);
+
+CREATE TABLE order_status_history (
+    id          INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    order_id    INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    old_status  TEXT CHECK (old_status IN ('pending','paid','packed','shipped','delivered','cancelled')),
+    new_status  TEXT NOT NULL CHECK (new_status IN ('pending','paid','packed','shipped','delivered','cancelled')),
+    changed_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE payments (
+    id        INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    order_id  INT NOT NULL REFERENCES orders(id) ON DELETE RESTRICT,
+    amount    NUMERIC(10,2) NOT NULL CHECK (amount > 0),
+    method    TEXT NOT NULL CHECK (method IN ('card','upi','netbanking','cod')),
+    paid_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
